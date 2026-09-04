@@ -49,6 +49,20 @@ export default async (req: Request, context: Context) => {
     );
   }
 
+  // Optional cost guard: if ACCESS_CODE is set as an env var, every request
+  // must include a matching X-Access-Code header. If ACCESS_CODE isn't set,
+  // this check is skipped entirely (open, same as before).
+  const requiredCode = Netlify.env.get("ACCESS_CODE");
+  if (requiredCode) {
+    const providedCode = req.headers.get("x-access-code");
+    if (providedCode !== requiredCode) {
+      return new Response(
+        JSON.stringify({ error: "Invalid or missing access code." }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  }
+
   const jobId = crypto.randomUUID();
   const store = getStore({ name: "loophole-jobs", consistency: "strong" });
   await store.setJSON(jobId, { status: "pending", createdAt: Date.now() });
