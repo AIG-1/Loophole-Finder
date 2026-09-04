@@ -1,0 +1,297 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+* { box-sizing: border-box; }
+
+:root {
+  --ink: #121826;
+  --paper: #EDE7D8;
+  --paper-dim: #E3DCC8;
+  --burgundy: #7A2331;
+  --amber: #8A6A28;
+  --teal: #2E5F5C;
+  --slate: #4A4438;
+  --line: rgba(18,24,38,0.14);
+}
+
+html, body {
+  margin: 0;
+  background: var(--ink);
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.lf-root {
+  color: var(--paper);
+  padding: 56px 24px 72px;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.lf-header h1 {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 34px;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+.lf-sub {
+  margin: 0 0 28px;
+  color: rgba(237,231,216,0.7);
+  font-size: 15px;
+  max-width: 56ch;
+  line-height: 1.5;
+}
+
+.lf-input-panel {
+  background: var(--paper);
+  border-radius: 6px;
+  padding: 4px;
+}
+.lf-dropzone {
+  border-radius: 4px;
+  transition: box-shadow 0.15s ease;
+}
+.lf-dropzone.drag {
+  box-shadow: inset 0 0 0 2px var(--teal);
+}
+.lf-dropzone textarea {
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  border: none;
+  outline: none;
+  background: repeating-linear-gradient(
+    var(--paper),
+    var(--paper) 27px,
+    var(--line) 28px
+  );
+  font-family: 'Lora', serif;
+  font-size: 15px;
+  line-height: 28px;
+  color: var(--ink);
+  padding: 16px 18px 0;
+  border-radius: 4px;
+  display: block;
+}
+.lf-dropzone textarea::placeholder {
+  color: rgba(18,24,38,0.4);
+  font-style: italic;
+}
+
+.lf-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px 14px;
+  flex-wrap: wrap;
+}
+.lf-upload {
+  font-size: 13px;
+  color: var(--slate);
+  border: 1px solid rgba(18,24,38,0.25);
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  transition: border-color 0.15s ease;
+}
+.lf-upload:hover { border-color: var(--teal); }
+.lf-filename {
+  font-size: 13px;
+  color: var(--slate);
+  font-style: italic;
+}
+.lf-analyze-btn {
+  margin-left: auto;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  background: var(--burgundy);
+  color: var(--paper);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.lf-analyze-btn:hover:not(:disabled) { background: #921f30; }
+.lf-analyze-btn:disabled {
+  background: rgba(18,24,38,0.2);
+  color: rgba(18,24,38,0.45);
+  cursor: not-allowed;
+}
+
+.lf-error {
+  background: rgba(122,35,49,0.12);
+  border-left: 3px solid var(--burgundy);
+  color: #F0DCDF;
+  font-size: 13.5px;
+  padding: 12px 14px;
+  border-radius: 3px;
+  margin-top: 16px;
+  line-height: 1.5;
+}
+
+.lf-results { margin-top: 36px; }
+.lf-summary h2 {
+  font-family: 'Lora', serif;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+.lf-summary p {
+  color: rgba(237,231,216,0.82);
+  font-size: 14.5px;
+  line-height: 1.6;
+  margin: 0 0 24px;
+  max-width: 68ch;
+}
+
+.lf-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid rgba(237,231,216,0.18);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.lf-tab {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  color: rgba(237,231,216,0.55);
+  padding: 10px 4px;
+  margin-right: 18px;
+  cursor: pointer;
+  position: relative;
+}
+.lf-tab.active { color: var(--paper); }
+.lf-tab.active::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 2px;
+  background: var(--tab-color, var(--paper));
+}
+
+.lf-findings-list { display: flex; flex-direction: column; gap: 14px; }
+.lf-empty {
+  color: rgba(237,231,216,0.55);
+  font-size: 14px;
+  font-style: italic;
+  padding: 20px 0;
+}
+
+.lf-card {
+  background: var(--paper);
+  border-radius: 4px;
+  padding: 18px 20px;
+  border-left: 4px solid transparent;
+}
+.lf-card-burgundy { border-left-color: var(--burgundy); }
+.lf-card-amber { border-left-color: var(--amber); }
+.lf-card-teal { border-left-color: var(--teal); }
+
+.lf-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.lf-index {
+  font-family: 'Lora', serif;
+  font-style: italic;
+  color: rgba(18,24,38,0.45);
+  font-size: 13px;
+}
+.lf-card-head h3 {
+  font-family: 'Lora', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+  flex: 1;
+  min-width: 140px;
+}
+.lf-severity {
+  font-size: 12.5px;
+  color: var(--slate);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.lf-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.lf-dot.high { background: var(--burgundy); }
+.lf-dot.medium { background: var(--amber); }
+.lf-dot.low { background: var(--teal); }
+
+.lf-quote {
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--slate);
+  border-left: 2px solid rgba(18,24,38,0.18);
+  padding: 2px 0 2px 14px;
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+.lf-vs {
+  font-size: 11.5px;
+  color: rgba(18,24,38,0.45);
+  margin: 0 0 8px 2px;
+}
+.lf-explain {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.55;
+  margin: 0 0 6px;
+}
+.lf-fix {
+  font-size: 13.5px;
+  color: var(--slate);
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+.lf-fix-label {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.lf-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 26px;
+  flex-wrap: wrap;
+}
+.lf-actions button {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 9px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid rgba(237,231,216,0.3);
+  background: transparent;
+  color: var(--paper);
+  transition: border-color 0.15s ease;
+}
+.lf-actions button:hover { border-color: var(--teal); }
+
+.lf-footer {
+  margin-top: 40px;
+  font-size: 12px;
+  color: rgba(237,231,216,0.4);
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  .lf-root { padding: 36px 16px 56px; }
+  .lf-header h1 { font-size: 27px; }
+  .lf-analyze-btn { margin-left: 0; width: 100%; }
+}
