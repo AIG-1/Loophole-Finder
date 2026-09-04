@@ -12,8 +12,8 @@ function buildUserPrompt(documentText: string): string {
 Rules:
 - Quote the actual document text for clauseA / clauseB / context fields (short excerpts, under 25 words each).
 - Do not invent clauses that are not present in the document.
-- Cap each category at 12 items, ranked by severity/importance first.
-- Keep each explanation and suggestedFix / suggestedAddition to one or two sentences.
+- Cap each category at 6 items, ranked by severity/importance first.
+- Keep each explanation and suggestedFix / suggestedAddition to one short sentence.
 - If a category has zero genuine findings, return an empty array for it — never manufacture findings to fill space.
 
 Document:
@@ -56,7 +56,7 @@ export default async (req: Request, context: Context) => {
     documentText = documentText.slice(0, 200000);
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = Netlify.env.get("ANTHROPIC_API_KEY");
   if (!apiKey) {
     return new Response(
       JSON.stringify({
@@ -67,21 +67,43 @@ export default async (req: Request, context: Context) => {
     );
   }
 
+  // Netlify kills this function at ~30s. Cut our own request off at 25s so
+  // we always get to return a clean JSON error instead of a raw platform 502.
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 25000);
+
   try {
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 4000,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: buildUserPrompt(documentText) }],
-      }),
-    });
+    let anthropicRes: Response;
+    try {
+      anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 1800,
+          system: SYSTEM_PROMPT,
+          messages: [{ role: "user", content: buildUserPrompt(documentText) }],
+        }),
+        signal: controller.signal,
+      });
+    } catch (fetchErr: any) {
+      if (fetchErr?.name === "AbortError") {
+        return new Response(
+          JSON.stringify({
+            error:
+              "The review is taking longer than this server allows. Try a shorter document, or split it into sections.",
+          }),
+          { status: 504, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      throw fetchErr;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!anthropicRes.ok) {
       const errBody = await anthropicRes.text();
