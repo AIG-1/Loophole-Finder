@@ -1,0 +1,11 @@
+{
+  "name": "loophole-finder",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "*"
+  },
+  "devDependencies": {
+    "@netlify/functions": "*"
+  }
+}
