@@ -1,79 +1,66 @@
-import type { Context, Config } from "@netlify/functions";
-import { getStore } from "@netlify/blobs";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Loophole Finder — contradiction, ambiguity, and gap analysis</title>
+<meta name="description" content="Paste or upload any document. Find every contradiction, every vague or undefined term, and what it does not prohibit." />
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="lf-root">
+    <header class="lf-header">
+      <h1>Loophole Finder</h1>
+      <p class="lf-sub">
+        Paste or upload any document. It reads back with every contradiction,
+        every vague or undefined term, and what it does not prohibit.
+      </p>
+    </header>
 
-const MAX_CHARS = 150000; // roughly 70-80 pages of dense text
+    <section class="lf-input-panel">
+      <div class="lf-dropzone" id="dropzone">
+        <textarea id="documentText" placeholder="Paste a contract, policy, NDA, lease, offer letter, or terms of service — or drop a file here."></textarea>
+      </div>
+      <div class="lf-controls">
+        <label class="lf-upload" id="uploadLabel">
+          <span id="uploadLabelText">Upload a file</span>
+          <input type="file" id="fileInput" accept=".txt,.md,.docx" style="display:none" />
+        </label>
+        <span class="lf-filename" id="fileName"></span>
+        <button class="lf-analyze-btn" id="analyzeBtn" disabled>Review document</button>
+      </div>
+      <div class="lf-status" id="statusBox" hidden></div>
+      <div class="lf-error" id="errorBox" hidden></div>
+    </section>
 
-export default async (req: Request, context: Context) => {
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
+    <section class="lf-results" id="resultsSection" hidden>
+      <div class="lf-summary">
+        <h2>Findings</h2>
+        <p id="summaryText"></p>
+      </div>
 
-  let documentText = "";
-  try {
-    const body = await req.json();
-    documentText = typeof body.documentText === "string" ? body.documentText : "";
-  } catch {
-    return new Response(JSON.stringify({ error: "Invalid request body" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
+      <div class="lf-tabs" id="tabs">
+        <button class="lf-tab active" data-tab="contradictions" style="--tab-color: var(--burgundy)">Contradictions (0)</button>
+        <button class="lf-tab" data-tab="vagueTerms" style="--tab-color: var(--amber)">Vague terms (0)</button>
+        <button class="lf-tab" data-tab="gaps" style="--tab-color: var(--teal)">Gaps (0)</button>
+        <button class="lf-tab" data-tab="keyClauses" style="--tab-color: var(--brass)">Key Clauses (0)</button>
+      </div>
 
-  if (!documentText.trim()) {
-    return new Response(JSON.stringify({ error: "No document text provided" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
+      <div class="lf-findings-list" id="findingsList"></div>
 
-  if (documentText.length > MAX_CHARS) {
-    return new Response(
-      JSON.stringify({
-        error: `This document is too long for now (${documentText.length.toLocaleString()} characters, limit is ${MAX_CHARS.toLocaleString()}). Trim it and try again.`,
-      }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
-  }
+      <div class="lf-actions">
+        <button id="copyBtn">Copy findings as memo</button>
+        <button id="resetBtn">Analyze another document</button>
+      </div>
+    </section>
 
-  const apiKey = Netlify.env.get("ANTHROPIC_API_KEY");
-  if (!apiKey) {
-    return new Response(
-      JSON.stringify({
-        error:
-          "This site doesn't have an ANTHROPIC_API_KEY set yet. Add one in Site configuration > Environment variables.",
-      }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
-  }
+    <footer class="lf-footer">
+      AI-generated analysis, not legal advice. Every quoted clause and finding
+      should be checked against the source document before you rely on it.
+    </footer>
+  </div>
 
-  const jobId = crypto.randomUUID();
-  const store = getStore({ name: "loophole-jobs", consistency: "strong" });
-  await store.setJSON(jobId, { status: "pending", createdAt: Date.now() });
-
-  const origin = new URL(req.url).origin;
-  try {
-    await fetch(`${origin}/.netlify/functions/run-analysis-background`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ jobId, documentText }),
-    });
-  } catch (err) {
-    console.error("Failed to trigger background analysis:", err);
-    await store.setJSON(jobId, {
-      status: "error",
-      error: "Couldn't start the review. Try again.",
-    });
-  }
-
-  return new Response(JSON.stringify({ jobId }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
-};
-
-export const config: Config = {
-  path: "/api/start-analysis",
-};
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+  <script src="/script.js"></script>
+</body>
+</html>
