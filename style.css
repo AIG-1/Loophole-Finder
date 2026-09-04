@@ -9,6 +9,7 @@
   --burgundy: #7A2331;
   --amber: #8A6A28;
   --teal: #2E5F5C;
+  --brass: #7A5A1E;
   --slate: #4A4438;
   --line: rgba(18,24,38,0.14);
 }
@@ -95,6 +96,20 @@ html, body {
   transition: border-color 0.15s ease;
 }
 .lf-upload:hover { border-color: var(--teal); }
+.lf-access-input {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  color: var(--ink);
+  border: 1px solid rgba(18,24,38,0.25);
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: transparent;
+  width: 140px;
+}
+.lf-access-input:focus {
+  outline: none;
+  border-color: var(--teal);
+}
 .lf-filename {
   font-size: 13px;
   color: var(--slate);
@@ -124,6 +139,17 @@ html, body {
   background: rgba(122,35,49,0.12);
   border-left: 3px solid var(--burgundy);
   color: #F0DCDF;
+  font-size: 13.5px;
+  padding: 12px 14px;
+  border-radius: 3px;
+  margin-top: 16px;
+  line-height: 1.5;
+}
+
+.lf-status {
+  background: rgba(46,95,92,0.14);
+  border-left: 3px solid var(--teal);
+  color: rgba(237,231,216,0.85);
   font-size: 13.5px;
   padding: 12px 14px;
   border-radius: 3px;
@@ -191,6 +217,23 @@ html, body {
 .lf-card-burgundy { border-left-color: var(--burgundy); }
 .lf-card-amber { border-left-color: var(--amber); }
 .lf-card-teal { border-left-color: var(--teal); }
+.lf-card-brass { border-left-color: var(--brass); }
+
+.lf-presence {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.lf-presence.present {
+  background: rgba(46,95,92,0.15);
+  color: var(--teal);
+}
+.lf-presence.absent {
+  background: rgba(122,35,49,0.12);
+  color: var(--burgundy);
+}
 
 .lf-card-head {
   display: flex;

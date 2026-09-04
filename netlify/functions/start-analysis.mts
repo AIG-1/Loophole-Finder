@@ -67,6 +67,8 @@ export default async (req: Request, context: Context) => {
   const store = getStore({ name: "loophole-jobs", consistency: "strong" });
   await store.setJSON(jobId, { status: "pending", createdAt: Date.now() });
 
+  // Hand off to the background function and don't wait for it to finish —
+  // just confirm it was accepted, then return the job id right away.
   const origin = new URL(req.url).origin;
   try {
     await fetch(`${origin}/.netlify/functions/run-analysis-background`, {

@@ -17,6 +17,7 @@ const state = {
   pollTimer: null,
   tickTimer: null,
   startedAt: null,
+  accessCode: localStorage.getItem("lf_access_code") || "",
 };
 
 const els = {
@@ -34,7 +35,14 @@ const els = {
   findingsList: document.getElementById("findingsList"),
   copyBtn: document.getElementById("copyBtn"),
   resetBtn: document.getElementById("resetBtn"),
+  accessCodeInput: document.getElementById("accessCode"),
 };
+
+els.accessCodeInput.value = state.accessCode;
+els.accessCodeInput.addEventListener("input", (e) => {
+  state.accessCode = e.target.value;
+  localStorage.setItem("lf_access_code", state.accessCode);
+});
 
 function showError(msg) {
   els.errorBox.textContent = msg;
@@ -139,7 +147,10 @@ async function handleAnalyze() {
   try {
     const res = await fetch("/api/start-analysis", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Access-Code": state.accessCode,
+      },
       body: JSON.stringify({ documentText: state.documentText }),
     });
     const data = await res.json();
