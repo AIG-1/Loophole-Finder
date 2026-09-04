@@ -29,6 +29,7 @@
         <span class="lf-filename" id="fileName"></span>
         <button class="lf-analyze-btn" id="analyzeBtn" disabled>Review document</button>
       </div>
+      <div class="lf-status" id="statusBox" hidden></div>
       <div class="lf-error" id="errorBox" hidden></div>
     </section>
 
@@ -42,6 +43,7 @@
         <button class="lf-tab active" data-tab="contradictions" style="--tab-color: var(--burgundy)">Contradictions (0)</button>
         <button class="lf-tab" data-tab="vagueTerms" style="--tab-color: var(--amber)">Vague terms (0)</button>
         <button class="lf-tab" data-tab="gaps" style="--tab-color: var(--teal)">Gaps (0)</button>
+        <button class="lf-tab" data-tab="keyClauses" style="--tab-color: var(--brass)">Key Clauses (0)</button>
       </div>
 
       <div class="lf-findings-list" id="findingsList"></div>
