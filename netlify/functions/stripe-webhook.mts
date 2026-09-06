@@ -41,6 +41,26 @@ export default async (req: Request, context: Context) => {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
+
+        if (session.mode === "payment") {
+          // One-time $9 single-document purchase — no customer/subscription needed.
+          const code = generateAccessCode();
+          await subscribers.setJSON(code, {
+            code,
+            stripeCustomerId: null,
+            subscriptionId: null,
+            email: session.customer_details?.email || null,
+            documentsUsed: 0,
+            documentsAllowed: 1,
+            status: "active",
+            currentPeriodEnd: null,
+            type: "one_time",
+          });
+          await sessionIndex.set(session.id, code);
+          break;
+        }
+
+        // Otherwise, a subscription checkout.
         const customerId = typeof session.customer === "string" ? session.customer : session.customer?.id;
         const subscriptionId =
           typeof session.subscription === "string" ? session.subscription : session.subscription?.id;
@@ -61,6 +81,7 @@ export default async (req: Request, context: Context) => {
           documentsAllowed: DOCUMENTS_PER_MONTH,
           status: "active",
           currentPeriodEnd: (subscription as any).current_period_end || null,
+          type: "subscription",
         });
         await customerIndex.set(customerId, code);
         await sessionIndex.set(session.id, code);
