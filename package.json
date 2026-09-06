@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@netlify/blobs": "*"
+    "@netlify/blobs": "*",
+    "stripe": "*"
   },
   "devDependencies": {
     "@netlify/functions": "*"
