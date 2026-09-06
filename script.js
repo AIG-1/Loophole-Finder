@@ -17,7 +17,15 @@ const state = {
   pollTimer: null,
   tickTimer: null,
   startedAt: null,
-  accessCode: localStorage.getItem("lf_access_code") || "",
+    accessCode: localStorage.getItem("lf_access_code") || "",
+  visitorId: (function () {
+    let id = localStorage.getItem("lf_visitor_id");
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("lf_visitor_id", id);
+    }
+    return id;
+  })(),
 };
 
 const els = {
@@ -147,9 +155,10 @@ async function handleAnalyze() {
   try {
     const res = await fetch("/api/start-analysis", {
       method: "POST",
-      headers: {
+            headers: {
         "Content-Type": "application/json",
         "X-Access-Code": state.accessCode,
+        "X-Visitor-Id": state.visitorId,
       },
       body: JSON.stringify({ documentText: state.documentText }),
     });
