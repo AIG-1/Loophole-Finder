@@ -43,7 +43,8 @@ const els = {
   findingsList: document.getElementById("findingsList"),
   copyBtn: document.getElementById("copyBtn"),
   resetBtn: document.getElementById("resetBtn"),
-  accessCodeInput: document.getElementById("accessCode"),
+   accessCodeInput: document.getElementById("accessCode"),
+  manageSubLink: document.getElementById("manageSubLink"),
 };
 
 els.accessCodeInput.value = state.accessCode;
@@ -391,3 +392,26 @@ els.resetBtn.addEventListener("click", () => {
 });
 
 updateAnalyzeButton();
+els.manageSubLink.addEventListener("click", async (e) => {
+  e.preventDefault();
+  clearError();
+  if (!state.accessCode.trim()) {
+    showError("Enter your subscription's access code in the box first, then click Manage subscription again.");
+    return;
+  }
+  const originalText = els.manageSubLink.textContent;
+  els.manageSubLink.textContent = "Loading…";
+  try {
+    const res = await fetch("/api/manage-subscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: state.accessCode.trim() }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Couldn't open subscription management.");
+    window.location.href = data.url;
+  } catch (err) {
+    showError(err.message || "Couldn't open subscription management.");
+    els.manageSubLink.textContent = originalText;
+  }
+});
