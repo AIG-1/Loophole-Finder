@@ -49,15 +49,22 @@ export default async (req: Request, context: Context) => {
     );
   }
 
-  // Cost guard: either the static admin ACCESS_CODE (unlimited, set by you),
-  // or a subscriber code from a Loophole Finder Pro subscription (capped at
-  // their monthly allowance, tracked in Blobs and reset by the Stripe webhook).
+  // Cost guard, three tiers:
+  // 1. Static admin ACCESS_CODE — unlimited, no metering (your own testing).
+  // 2. A subscriber code — capped at their monthly allowance.
+  // 3. No code at all — free tier, capped at FREE_TIER_LIMIT per visitor,
+  //    tracked by an anonymous id the browser generates and persists.
+  const FREE_TIER_LIMIT = 2;
   const requiredCode = Netlify.env.get("ACCESS_CODE");
   const providedCode = req.headers.get("x-access-code") || "";
+  const visitorId = req.headers.get("x-visitor-id") || "";
 
   let usingSubscriberCode = false;
   let subscriberStore;
   let subscriberRecord: any = null;
+  let usingFreeTier = false;
+  let freeTierStore;
+  let freeTierCount = 0;
 
   if (requiredCode && providedCode === requiredCode) {
     // Admin/testing code — unlimited, no metering.
@@ -94,11 +101,27 @@ export default async (req: Request, context: Context) => {
       );
     }
     usingSubscriberCode = true;
-  } else if (requiredCode) {
-    return new Response(JSON.stringify({ error: "Invalid or missing access code." }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
+  } else {
+    // No code provided at all — free tier.
+    if (!visitorId) {
+      return new Response(
+        JSON.stringify({ error: "Couldn't identify this browser session. Refresh the page and try again." }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    freeTierStore = getStore({ name: "free-usage", consistency: "strong" });
+    const existing = await freeTierStore.get(visitorId, { type: "json" });
+    freeTierCount = (existing as any)?.count || 0;
+
+    if (freeTierCount >= FREE_TIER_LIMIT) {
+      return new Response(
+        JSON.stringify({
+          error: `You've used your ${FREE_TIER_LIMIT} free reviews. Enter an access code, or subscribe for more.`,
+        }),
+        { status: 402, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    usingFreeTier = true;
   }
 
   const jobId = crypto.randomUUID();
@@ -110,6 +133,9 @@ export default async (req: Request, context: Context) => {
       ...subscriberRecord,
       documentsUsed: subscriberRecord.documentsUsed + 1,
     });
+  }
+  if (usingFreeTier && freeTierStore) {
+    await freeTierStore.setJSON(visitorId, { count: freeTierCount + 1 });
   }
 
   // Hand off to the background function and don't wait for it to finish —
