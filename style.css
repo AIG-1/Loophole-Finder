@@ -41,6 +41,14 @@ html, body {
   display: inline-flex;
   align-items: center;
 }
+.lf-logo-box {
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 6px;
+  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+}
 .lf-logo-mark {
   height: 40px;
   width: auto;
