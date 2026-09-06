@@ -27,32 +27,24 @@ html, body {
   margin: 0 auto;
 }
 
-   .lf-brand {
-     display: flex;
-     align-items: center;
-     gap: 16px;
-     margin-bottom: 8px;
-   }
-   .lf-logo-box {
-  background: #fff;
-  border: 2px solid #000;
-  border-radius: 6px;
-  padding: 6px 12px;
-  display: inline-flex;
+.lf-brand {
+  display: flex;
   align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
 }
 .lf-logo-mark {
   height: 40px;
   width: auto;
   display: block;
 }
-   .lf-header h1 {
-     font-family: 'Lora', serif;
-     font-weight: 700;
-     font-size: 34px;
-     margin: 0;
-     letter-spacing: -0.01em;
-   }
+.lf-header h1 {
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 34px;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
 .lf-sub {
   margin: 0 0 28px;
   color: rgba(237,231,216,0.7);
@@ -128,6 +120,13 @@ html, body {
 .lf-access-input:focus {
   outline: none;
   border-color: var(--teal);
+}
+.lf-subscribe-link {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 12.5px;
+  color: var(--teal);
+  text-decoration: underline;
+  white-space: nowrap;
 }
 .lf-filename {
   font-size: 13px;

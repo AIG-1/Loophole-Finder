@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Subscription confirmed — Loophole Finder</title>
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="lf-root" style="max-width:560px;">
+    <header class="lf-header">
+      <h1>You're in.</h1>
+      <p class="lf-sub">Your Loophole Finder Pro subscription is active — 10 document reviews a month.</p>
+    </header>
+
+    <section class="lf-input-panel" style="padding:24px;">
+      <div id="waitingState">
+        <p style="color:var(--ink); font-family:'IBM Plex Sans',sans-serif; font-size:14px;">
+          Finalizing your subscription…
+        </p>
+      </div>
+
+      <div id="codeState" hidden>
+        <p style="color:var(--ink); font-family:'IBM Plex Sans',sans-serif; font-size:14px; margin-bottom:10px;">
+          Your access code — save this, you'll enter it on the main page each time you run a review:
+        </p>
+        <div style="background:var(--paper-dim); border-radius:4px; padding:14px 18px; font-family:'IBM Plex Sans',monospace; font-size:22px; font-weight:600; letter-spacing:0.05em; color:var(--ink); text-align:center;" id="codeDisplay"></div>
+        <p style="margin-top:16px;">
+          <a href="/" style="color:var(--burgundy); font-family:'IBM Plex Sans',sans-serif; font-size:14px;">Go to Loophole Finder →</a>
+        </p>
+      </div>
+
+      <div id="errorState" hidden>
+        <p style="color:var(--burgundy); font-family:'IBM Plex Sans',sans-serif; font-size:14px;">
+          This is taking longer than expected. Your payment went through — refresh this page in a moment, or contact support with your confirmation email.
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
+    let attempts = 0;
+    const MAX_ATTEMPTS = 12; // ~18 seconds
+
+    async function poll() {
+      if (!sessionId) {
+        document.getElementById("waitingState").hidden = true;
+        document.getElementById("errorState").hidden = false;
+        return;
+      }
+      attempts++;
+      try {
+        const res = await fetch(`/api/subscribe-status?session_id=${encodeURIComponent(sessionId)}`);
+        const data = await res.json();
+        if (data.ready && data.code) {
+          document.getElementById("waitingState").hidden = true;
+          document.getElementById("codeDisplay").textContent = data.code;
+          document.getElementById("codeState").hidden = false;
+          return;
+        }
+      } catch (e) {
+        // keep retrying
+      }
+      if (attempts >= MAX_ATTEMPTS) {
+        document.getElementById("waitingState").hidden = true;
+        document.getElementById("errorState").hidden = false;
+        return;
+      }
+      setTimeout(poll, 1500);
+    }
+    poll();
+  </script>
+</body>
+</html>
